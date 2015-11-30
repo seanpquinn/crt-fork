@@ -1,0 +1,612 @@
+/*
+   CRT
+   A program to inject and propagate UHECRs from various galactic and EXG sources through Galactic magnetic field models
+
+   Programmers:  Michael Sutherland   msutherland@phys.lsu.edu
+                 Brian Baughman       bbaugh@mps.ohio-state.edu
+
+   Additional information can be found in
+      Pierre Auger Observatory GAP note 2008-099
+    and in
+      Sutherland et al., Astroparticle Physics, Volume 34, Issue 4, p. 198-204. (2010).
+
+   The source code can be downloaded from
+	http://crt.mps.ohio-state.edu/
+   under the credentials
+	username: public
+	password: tracker
+
+   We gratefully request that any scientific work or study incorporating CRT or results derived from its use acknowledge CRT and its authors.
+
+
+
+--------------------------------------
+  DETAILS
+  CRT uses adaptive Runge-Kutta integration methods to determine the trajectory of a charged particle through a magnetic field according to the relativistic Lorentz force. These integration methods are fully described in Numerical Recipes.
+
+
+  The user specifies the source distribution and Galactic magnetic field configuration. CRT is designed such that users may use sources types and magnetic field models currently implemented within the source, or they may write their own source and field classes and recompile the source code for use.
+
+
+  Particles are created by a specified type of source at some location (Earth, galactic (G), or extra-galactic (EXG)), injected at some energy, and followed until an end criterium is satisfied. Particle can be forward- or back-tracked from G or EXG sources, or backtracked from the detector. Backtracking is accomplished by following the anti-particle (changing the sign of the charge and initial velocity vector).
+
+
+  Energy losses are NOT calculated during propagation. This is motivated by the fact that the traversed pathlength through the Galaxy is much smaller than the intergalactic pathlength. As the dominant source of energy loss at the highest energies is through photopion production or nuclear disintegration via interaction with the cosmic background radiation, the probability of interaction is considerably smaller during Galactic transit as opposed to intergalactic transit.
+
+
+  CRT is self-contained, except for the sole external dependency on GSL random number libraries. Please check that these are installed on your system. Refer to the accompanying INSTALL file for more details.
+
+
+  The chosen convention for uninitialized parameters or irrelevent output values (for example, observed latitude for an UNOBSERVED particle) is the integer (-999).
+
+
+  The Galactic coordinate system as defined at Earth is used exclusively when referring to directions in the sky. There are two Cartesian coordinate systems used: one defined exclusively within the magnetic field class (Field System) and is used to define the parameterizations of the Symmetric Spiral field models, and another used everywhere else within the program (System A).
+  System A is defined as follows,
+    the origin (0,0,0) is located at the Solar position within the Galaxy. This is defined to be 8.5 kpc from the Galactic Center in the file <globals.h> as the "solarDistance" parameter.
+    the x-hat unit vector points towards the Galactic center (Gal long., Gal lat.)=(0, 0)
+    the y-hat unit vector points towards (Gal long., Gal lat.)=(90degrees, 0)
+    the z-hat unit vector point towards the Galactic North Pole  (Gal long., Gal lat.)=(0, 90degrees)
+
+  Field System is defined only within the field strength calculations. The field component strength function accepts a System A position for the particle, converts it into Field System coordinates and calculates the field strength, then converts the total magnetic field components from Field System to System A. This coordinate conversion is hidden from the user; the user simply presents the System A particle position and is returned the System A magnetic field vector.
+
+
+
+--------------------------------------
+  OPTION FLAGS
+    CRT is executed with a program call and flags that establish simulation settings.
+	backtrack - Flag to force events to be backtracked from the Earth's position in the Galaxy; this setting affects ALL particles and sources. Default is false.
+
+	detR - Option to set the size of detector in kpc. Default is 0 for backtracking and 0.1 for forward tracking. When backtrack is selected, this flag also sets the size of the injection disc at Earth. Defining a position within the input configuration file overrides this flag.
+
+	detectall - Flag to attempt to detect number of particles set in a source definition. Default is false.
+
+	dettype - Option to set the detector type. 'default' and 'area' available.
+
+	err - Option to set maximum allowed error for dynamic stepping. Default is 1e-8.
+
+	infile, input - Option to set input configuration file. REQUIRED
+
+	ofile, output - Option to set output file. Default is std::cout.
+
+	rk5 - Flag request the use of stepperdopr5. Default to false.(superseded by rk853)
+
+	rk853 - Flag to force the use of stepperdopr853. Default to true. (supersedes rk5)
+
+	seed - Option to set seed for random number generator. Defaults to time.
+
+	tmax - Option to set maximum time to track particle in years. Default is 1e6
+
+	tpersrc - Option to set the number of failed attempts to detect each source before moving on. Default is 10000.
+
+	tstep - Option to set minimum time step in years. Default is 10.
+
+
+    The only required flag is 'infile'. All others have default values. The absolute minimum program call is
+	./CRT infile={}
+
+    The following full program call illustrates how to use each flag and provide values for those that require them
+        ./CRT   -backtrack   detR=0.5   -detectall   dettype=area   err=0.0034   infile=/home/myinfile.file   ofile=/home/myoutput.file   -rk5   -rk853   seed=12   tmax=1000   tpersrc=100   tstep=3
+
+
+
+
+--------------------------------------
+  OUTPUT FORMAT (example)
+    CRT outputs event information in tab ('\t') delimited columns. Lines comprising comments or information not pertinent to individual events begin with '#' characters.
+
+    The event output is intended to inform the user as to the initial and final integrated position and velocity coordinates of the particle, as well as the source position, detection position, and magnetic deflection angle.
+
+    Event Quality is intended to provide information about the endstate of a particle. A zero (0) indicates that the particle was considered to have propagated successfully according to the simulation settings. The output for any event with a nonzero Event Quality code represents position and velocity information of the event at the time the problem was encountered during integration.
+
+    All Longitudes and Latitudes on the sky are reported in the Galactic coordinate system defined by the Earth's location with respect to the Galactic Center, following the definition given above, and regardless of the position of the Detector. 
+
+    The following #-lines display the typical header information placed at the beginning of every output file. These lines describe the simulation settings used during the program execution. The final #-line labels the columns of data to be output after propagation. Regardless of detection status or Event Quality value, every column is filled for every particle.
+    # Run command: 
+    # ./CRT infile=/home/testinfile.txt ofile=/home/output.dat 
+    #
+    # RNGseed: 1279815451
+    # 1 srcs, 10 total events, detector size=0.1kpc
+    #
+    # D 0 0 0 0.1
+    #
+    # I 10 0.01 -2.7 3 200 1 1
+    #
+    # F bss_s stanev 2 -10 10.55 1 1 4 0.5
+    #
+    # Src Num 	CR Energy [EeV] 	Src. Long. [deg] 	Src. Lat. [deg] 	EXG Xcoor. [kpc] 	EXG Ycoor. [kpc] 	EXG Zcoor. [kpc] 	Hit (1=Y,0=N) 	Obs. Long.[deg] 	Obs. Lat. [deg] 	Ang. Sep. [deg] 	Imp. Angle [deg] 	Imp. Param. [kpc] 	Particle Mass 	Particle Charge 	Evt. Number 	Detector Xcoor. [kpc] 	Detector Ycoor. [kpc] 	Detector Zcoor. [kpc] 	Event Quality
+
+
+    Src Num: refers to source identification number. The source number directly maps to the order of source declarations in the input configuration file.
+
+    CR Energy: energy of particle in units of EeV
+
+    Src.Long.: in case of forwardtracking, Galactic longitude of source. In case of backtracking, projected longitude of source based on final velocity direction of particle upon exiting magnetic field region
+
+    Src.Lat.: in case of forwardtracking, Galactic latitude of source. In case of backtracking, projected latitude of source based on final velocity direction of particle upon exiting magnetic field region
+
+    EXG Xcoor.: in case of forwardtracking, x-coordinate of particle's initial position. In case of backtracking, final x-coordinate of particle's position upon exiting magnetic field region
+
+    EXG Ycoor.: in case of forwardtracking, y-coordinate of particle's initial position. In case of backtracking, final y-coordinate of particle's position upon exiting magnetic field region
+
+    EXG Zcoor.: in case of forwardtracking, z-coordinate of particle's initial position. In case of backtracking, final z-coordinate of particle's position upon exiting magnetic field region
+
+    Hit: hit status for particle. (zero) = no hit, 1 = hit or observed. In case of backtracking, this is always set to 1
+
+    Obs.Long.: in case of forwardtracking, projected observed Galactic longitude based on direction of particle's velocity at 'time of hit'. If the particle is NOT observed, this is set to (-999). In case of backtracking, this is the longitude of the observed event or initial injection direction
+
+    Obs.Lat.: in case of forwardtracking, projected observed Galactic latitude based on direction of particle's velocity at 'time of hit'. If the particle is NOT observed, this is set to (-999). In case of backtracking, this is the latitude of the observed event or initial injection direction
+
+    Ang.Sep.: when a particle is 'observed', this is the space angle between Src Long/Lat and Obs Long/Lat. In case of NO hit, this defaults to (-999)
+
+    Imp. Angle: if the event is a hit, then this is set to (90)
+
+    Imp. Param.: the impact parameter regardless of hit status or tracking method
+
+    Particle Mass: mass of the particle in units of proton mass
+
+    Particle Charge: charge of the particle in units of proton charge
+
+    Evt. Number: the total event number of the event within the simulation
+
+    Detector Xcoor.: in case of forwardtracking, the x-coordinate of the particle when detected. In case of backtracking, x-coordinate of the injection site
+
+    Detector Ycoor.: in case of forwardtracking, the y-coordinate of the particle when detected. In case of backtracking, y-coordinate of the injection site
+
+    Detector Zcoor.: in case of forwardtracking, the z-coordinate of the particle when detected. In case of backtracking, z-coordinate of the injection site
+
+    Event Quality: A flag indicating the integration result. A nonzero result indicates that a problem was encountered during integration.
+	(0) indicates that the integration ended with no errors.
+	(1) indicates that the maximum integration time was reached.
+	(2) indicates that the minimum stepsize was reached.
+	(3) indicates that the maximum number of allowable steps was reached.
+	(4) indicates that a forwardtracked particle exited the magnetic field region without detection but was otherwise successfully tracked
+
+
+
+--------------------------------------
+  INPUT FORMAT
+    All source distributions and magnetic field models desired for a single simulation are specified within the input configuration file. A particular detector model can also be specified. Since the particle only 'feels' the total magnetic field, the program will add together any individual field models that the user specifies. A wide variety of sources can be generated, including multi-component sources (proton plus iron, for example).
+
+    The default detector configuration is a disc with radius 0.1 kpc located at the solar position within the Galaxy. If the user does not include a 'D' type in the input configuration file, the default detector is used although the user can still adjust the detector size using the 'detR' command line flag. The inclusion of a 'D' type in the configuration file automatically overrides the 'detR' flag. In this case, the user specifies the position of the detector within the magnetic field model by its System-A coordinates and the desired detector radius.
+
+    During forwardtracked simulations, many source types simulate an extragalactic flux passing through the Galaxy. For real sources located at large extragalactic distance, this flux is well-represented by a plane wave of particles impinging on the GMF. For an individual source located in a particular direction (l_gal, b_gal), the actual injection positions of the particles are randomly located on disc lying within the tangent plane to the direction (l_gal, b_gal). The parameter CRSHIFT specifies the radius of this injection disc. This is more fully described in the GAPnote and publication.
+
+    In the case of backtracking, particles are injected from positions lying on the detector disc. In this case, values for CRSHIFT are still required in the appropriate sources to make complete source declarations, but these are ignored.
+
+    The input format is described below. The order in which fields and sources are specified does not matter, as long as each declaration is complete. CRT checks each declaration against the required format and informs the user; if it is incomplete, the source is skipped.
+
+     IT IS POSSIBLE TO USE ANY COMBINATION OF SOURCE TYPES AND FIELD MODELS, AS WELL AS PARAMETER VALUES FOR MANY GMF MODELS. ONLY A ::SINGLE:: DETECTOR INSTANCE IS CREATED WITHIN A SIMULATION. IF THERE ARE MULTIPLE DETECTORS DEFINED, ONLY THE FIRST DECLARATION IS USED.
+
+
+     DETECTOR
+              D  PX  PY  PZ  R
+
+    	The units and specific format for source parameters are given below:
+		PX - [kpc], the System-A x-coordinate of the detector
+		PY - [kpc], the System-A y-coordinate of the detector
+		PZ - [kpc], the System-A z-coordinate of the detector
+		R - [kpc], the radius of the detector
+
+     SOURCE TYPES
+	isotropic:
+              I  NPSRC  CRSHIFT  CRINDEX  EMIN  EMAX  PMASS PCHARGE
+	isotropic-mono-plaw-auger:
+              X  NPSRC  CRSHIFT  CRINDEX  EMIN  EMAX  PMASS PCHARGE
+	point:
+              P  NPSRC  CRSHIFT  CRINDEX  EMIN  EMAX  DSRC LONG LAT BEAMANGLE PMASS PCHARGE
+	long:      
+              L  NPSRC  CRSHIFT  ENERGY  STARTANGLE PMASS PCHARGE
+	long-mono-plaw-auger:
+              Y  NPSRC  CRSHIFT  ENERGY  STARTANGLE PMASS PCHARGE
+	lat:      
+              B  NPSRC  CRSHIFT  ENERGY  STARTANGLE PMASS PCHARGE
+	lat-mono-plaw-auger: 
+              Z  NPSRC  CRSHIFT  ENERGY  STARTANGLE PMASS PCHARGE
+	CR:       
+              C  ENERGY  LONG  LAT  PMASS PCHARGE
+        ArbTraj:   
+              A  ENERGY PX PY PZ VX VY VZ PMASS PCHARGE
+        EGsrc:     
+              E  NPSRC CRSHIFT CRINDEX  EMIN  EMAX  DSRC LONG LAT BRAND LCORR LEG PMASS PCHARGE
+	isotropic-broken-plaw: 
+              BPI  NPSRC  CRSHIFT  INDEX0  INDEX1  EBREAK  EMIN EMAX PMASS PCHARGE
+	isotropic-broken-plaw-auger (backtrk and Auger exposure): 
+              BPX  NPSRC  CRSHIFT  INDEX0  INDEX1  EBREAK  EMIN EMAX PMASS PCHARGE
+
+
+    	Isotropic: produce NPSRC particles according to the desired power law energy spectrum with random isotropic directions. All particles for a given source have the same mass and charge specified by the user.
+
+    	Point: point sources placed on the sky according to the Galactic coordinates specified by the user. Each source produces NPSRC particles with the given mass and charge, and energy drawn from the power law energy spectrum. The particles are injected with velocity vectors lying within a cone of angular size BEAMANGLE degrees.
+
+    	Long: refers to Point sources placed at regular intervals along the specified Galactic longitude (STARTANGLE). The spacing is determined by NSRC (more sources decreases the spacing). All point sources created within a specified Long source are the same.
+
+    	Lat: sources are similar to Long sources, however the sources are arranged along the specified latitude coordinate (STARTANGLE).
+
+    	CR: are special case Point sources designed to readily backtrack observed events. The user specifies the measured energy and arrival direction, and provides assumptions on the composition. This source type requires the '-backtrack' flag at execution; simulations using this source type with no '-backtrack' flag are skipped.
+
+	ArbTraj: is a source located at System-A coordinates (X,Y,Z) which injects a particle with System-A velocity components (VX,VY,VZ). The user specifies every property about the particle.
+
+        EGsrc: is a Point source that accounts for extragalactic turbulent magnetic field effects. The smearing is implemented by initializing the initial velocity vector with an additional random component in order to estimate the deflection from traversing the turbulent field. The particle is NOT propagated through an extragalactic magnetic field. The user specifies the properties of the turbulent field and CRT selects between 2 models based on a comparison between the particle Larmor radius and the turbulent field correlation length.
+
+	Isotropic-mono-plaw-Auger / Long-mono-plaw-Auger / and Lat-mono-plaw-Auger: refer to sources where the initial directions are sampled according to the Pierre Auger Observatory exposure function. These source types use a power law spectrum where the spectral index is the same over the entire energy range. The exposure for a detector situated elsewhere on the Earth can be implemented by creating a new detector namespace and reinitializing the detector values in the 'detector.h' file.
+
+	Isotropic-broken-plaw: same as the Isotropic source type but the particle energies are sampled from a broken power law spectrum with a single break energy.
+
+	Isotropic-broken-plaw-auger: same as the Isotropic-broken-plaw source type but the exposure of a specified detector is taken into account when selecting event directions.
+
+
+    	The units and specific format for source parameters are given below:
+		NPSRC - number of particles from this source
+		CRSHIFT - [kpc], size of disk within which to generate particles
+		CRINDEX - spectral index for this source, CRT will return an error message if set to (-1) and skip the source
+		EMIN - [EeV], minimum energy of spectrum
+		EMAX - [EeV], maximum energy of spectrum
+	        EBREAK - [EeV], break energy of broken-plaw spectrum
+       		INDEX0 - spectral index below EBREAK
+       		INDEX1 - spectral index above EBREAK
+		PMASS - mass of particle, set as multiples of proton mass (PMASS=1 -> proton, PMASS=26 -> iron)
+		PCHARGE - charge of particle, set as multiples of proton charge (same as PMASS)
+		DSRC - [kpc], distance to source. if D=(-999), then source is assumed EXG (distance automatically set to 50kpc)
+		LONG - [degrees], Galactic longitude of source
+		LAT - [degrees], Galactic latitude of source
+		STARTANGLE - [degrees], coordinate of strip for Long/Lat sources
+		BEAMANGLE - [degrees], opening angle of 'jet' at the source, uniform over solid angle. All particle velocity vectors will lie within directions encompassed by the 'jet'
+		ENERGY - [EeV], energy of particle
+		PX - [kpc], the System-A x-component of the source position for the ArbTraj source type
+		PY - [kpc], the System-A y-component of the source position for the ArbTraj source type
+		PZ - [kpc], the System-A z-component of the source position for the ArbTraj source type
+		VX - the fractional x-component of the particle velocity for the ArbTraj source class (CRT automatically normalizes the velocity vector to c)
+		VY - the fractional y-component of the particle velocity for the ArbTraj source class (CRT automatically normalizes the velocity vector to c)
+		VZ - the fractional z-component of the particle velocity for the ArbTraj source class (CRT automatically normalizes the velocity vector to c)
+	        BRAND - [microGauss], magnitude of extragalactic turbulent magnetic field for the EGsrc source type
+      		LCORR - [kpc], correlation length of extragalactic turbulent magnetic field for the EGsrc source type
+     		LEG - [kpc], distance to source in the EGsrc source type
+
+
+
+     MAGNETIC FIELDS
+	ASS_A:    F ass_a  model NORM PITCH SCALE1 SCALE2 SCALE3 SCALE4 ZCUT
+	ASS_S:    F ass_s     "     "      "     "       "     "     "   "
+	BSS_A:    F bss_a     "     "      "     "       "     "     "   "
+	BSS_S:    F bss_s     "     "      "     "       "     "     "   "
+	UNIFORM:  F uniform   BX   BY   BZ
+	DIPOLE:   F dipole   NORM
+        SIMRNDM:  F simprand norm   corrlen   sigmalen   sigmanorm
+        RING:     F ring   NORM   INNEREDGE   OUTEREDGE  SCALE5
+        TOROID:   F toroidal  TORRAD  SCALE6  LORWIDTH  BMAX
+        INVERSE:  F r^N    NORM INDEX INNEREDGE PITCH model SCALE3
+        SUN2008:  F sun2008 ass+ring PITCH  B0  R0  Bc  Rc  z0  R1  R2  R3  BH0  zH0  zH1  zH1a  RH0
+        SUN2008:  F sun2008 bss B0  R0  Bc  Rc  z0  Rb  p1  Rb1  p2  Rb2  BH0  zH0  zH1  zH1a  RH0
+        JF2012 regular only:   F jf2012 SIGMA 0
+        JF2012 regular and striated random:   F jf2012 SIGMA 1 READ_FLAG /file/containing/instances
+        JF2012 small scale random component:   F jf2012_random READ_FLAG NCELLS /file/containing/instances
+
+	*SS_*: refers to Spiral Symmetric models. The user specifies the specific type, normalization, pitch angle, scale lengths, and zcut.
+
+	Uniform: refers to a simple uniform field (X,Y,Z components).
+
+	Dipole: A simple dipole field centered on the galaxy. The user specifies the normalization only.
+
+	SimRndm: a simple turbulent magnetic field (NOT used in the EGsrc source type).
+
+        Ring: A magnetic field that is nonzero between 2 galactocentric distances (between 4 and 5 kpc for example) and zero elsewhere. This field experiences exponential attenuation away from the Galactic plane.
+
+        Toroid: A toroidal field model where the field vector points azimuthally with constant strength out to a specified galactocentric distance, then falls off exponentially with galactocentric distance in the plane. The field attenuates exponentially away from the Galactic plane.
+
+	Inverse: A r^index power law field model.
+
+	Sun2008: Modified spiral fields with toroidal halo component.
+
+	JF2012: The "regular" component of this model. Individual spiral arms confined within ~ 100 pc vertical extent within the Galactic disk and an azimuthal magnetic field near the GC (<3 kpc). Two halo fields away from the disk: traditional toroidal and X-shape. This model is designed to satisfy physical divergenceless of magnetic fields. Its parameters are hard-coded in the source file.
+
+	JF2012 random: The random component of the JF2012 model. The striated component is included in a special constructor of the JF2012 regular class since the magnitude and direction are dependent on the regular field at each point. All parameters are hard-coded in the source file.
+
+
+
+    	The units and specific format for field parameters are given below:
+		model - the user specifies 'stanev','hmr' for spiral fields; 'none','expo','smooth' for r-2 field.
+		NORM - [microGauss], the magnitude of the field vector in the solar local vicinity.
+		PITCH - [degrees], looking from the Galactic North Pole, the pitch angle is positive if the clockwise tangent to the spiral is outside the circle with radius R.
+		SCALE1 - [kpc], Galactocentric distance of the location of maximum field strength along the line connecting the Sun and the Galactic center.
+		SCALE2 - [kpc], scale length for HMR tanh() attenuation factor in the Galactic disk.
+		SCALE3 - [kpc], scale length for attenuation decay along z-direction.
+		SCALE4 - [kpc], scale length for attenuation decay along z-direction.
+		ZCUT - [kpc], distance in z-direction where attenuation scale length changes from SCALE3 to SCALE4.
+		BX, BY, BZ - [microGauss], the magnitude of the field component in the solar local vicinity.
+		norm (simprand) - [microGauss], normalization RMS value.
+                CORRLEN - [kpc], correlation length.
+                SIGMALEN - [kpc], sigma for cell size variation.
+                SIGMANORM - [microGauss], sigma for normalization variation.
+		INNEREDGE - [kpc], inner edge of annulus of nonzero field magnitude.
+		OUTEREDGE - [kpc], outer edge of annulus.
+		SCALE5 - [kpc], scale length for exponential decay along z-direction.
+		TORRAD - [kpc], radius of circle for constant field magnitude.
+		SCALE6 - [kpc], scale height above Galactic plane.
+		LORWIDTH - [kpc], half-width of Lorentzian distribution.
+		BMAX - [kpc], maximum value of field magnitude.
+		B0 - [microGauss], the field magnitude at the solar local vicinity
+		R0 - [kpc], scale length for the galactocentric exponential attenuation of the disk component
+		Bc - [microGauss], the field magnitude of the constant magnitude component
+		Rc - [kpc], maximum galactocentric distance of the constant field magnitude component
+		z0 - [kpc], scale length for the z-direction exponential attenuation of the disk component
+		R1 - [kpc], outer distance for field direction reversal of disk component
+		R2 - [kpc], mid distance for field direction reversal of disk component
+		R3 - [kpc], inner distance for field direction reversal of disk component
+		BH0 - [microGauss], field magnitude of halo component at the coordinates (rho=RH0,phi=0,z=zH0)
+		zH0 - [kpc], height above Galactic plane where scale height for halo z-attenuation changes from zH1 to zH1a
+		zH1 - [kpc], scale height for halo component z-attenuation for |z|<zH0
+		zH1a - [kpc], scale height for halo component z-attenuation for |z|>zH0
+		RH0 - [kpc], scale length for the galactocentric exponential attenuation of the halo component
+		Rb - [kpc], galactocentric distance where scale height for disk component galactocentric attenuation changes from Rb1 to Rb2
+		p1 - [degrees], pitch angle of field vectors for galactocentric distances r>Rb
+		Rb1 - [kpc], scale length of disk component for galactocentric distances r>Rb
+		p2 - [degrees], pitch angle of field vectors for galactocentric distances r<Rb
+		Rb2 - [kpc], scale length of disk component for galactocentric distances r<Rb
+	        SIGMA - [], the amount of variation with which to change the parameters from their best-fit values. This is how many "sigma" to shift every parameter
+		READ_FLAG - [], flag for specifying whether to generate the random field cells by polling the RNG or reading them from a file. Use 1 to generate, or 0 to read from file.
+		NCELLS - [], number of unique cells to generate, or field instances to read from the file. If outputting, the first line of the file will always contain the column labels. If reading from file, this first line is read and discarded.
+		CELLFILE - [], the absolute path of the file to hold the random field cell instances
+
+
+	NB: SCALE2 is not used for 'stanev' fields and ZCUT is not used for 'hmr' fields; A complete field declaration still requires values, so simply set these parameters to (1) in these cases.
+
+
+
+--------------------------------------
+  MAGNETIC FIELD MODELS
+    CRT incorporates 12 default types of magnetic fields, however, users are free to write and include their own magnetic field models. These default magnetic fields are assumed nonzero within a galactocentric distance of 20kpc, and zero elsewhere.	
+
+    Spiral Symmetric Models
+	System-A coordinates (x,y,z) are converted into Field coordinates (x',y',z') by the following transformation
+		x' = (-x) + R_sun
+		y' = (-y)
+		z' = z
+	The Field coordinate system then uses the following quantities calculated from (x',y',z'):
+		r = sqrt( x'^2 + y'^2)
+		theta = arctan(y' / x')
+
+	There are 2 types of SS models included by default:
+		Stanev, described in Astrophys. J. 479:290 (1997), also (arXiv:astro-ph/9607086)
+		HMR, described in JHEP 9908 (1999) 022, also (arXiv:astro-ph/9906309)
+
+	(Stanev) - The field equations are generalized as follows:.
+		PITCH = p, SCALE{X} = r{X}, beta = 1/tan(p), ZCUT = z_c
+		LOGE = natural logarithm function
+
+		B(r,theta,z) = B(r,theta) * f(z)
+			where f(z) = exp[ - abs(z) / r3 ] 	if abs(z) <= zc
+				   = exp[ - abs(z) / r4 ]	if abs(z) > zc
+		B(r,theta) = (3 * R_sun / r) * cos[theta - beta*LOGE[r / r1] ]
+
+		In the ASS model, the cosine term is replaced by its absolute value.
+
+		For values of r < 4kpc,
+			B( {r<4kpc} ,theta) = B( 4kpc , theta)
+
+		NB: It should be noted that Stanev used this formulation for 2 field arrangements:
+			BSS_S where the field direction is preserved upon disk crossing
+			ASS_A where field direction changes
+		    In CRT, the user has the BSS_{A/S} and ASS_{A/S} available.
+
+	(HMR) - The field equations are generalized as follows:
+		PITCH = p, SCALE{X} = r{X}, beta = 1/tan(p), ZCUT = z_c
+		LOGE = natural logarithm function
+
+		B(r,theta,z) = B(r,theta) * f(z)
+			where f(z) = exp[ 0.5* { 1/cosh(z/r3) + 1/cosh(z/r4)} ]
+		B(r,theta) = (3 * R_sun / r) * {tanh(r/r2)}^3 * cos[theta - beta*LOGE[r / r1] ]
+
+		In ASS models, the cosine term is replaced by its squared value.
+
+		Additionally, the disk field reversal in *SS_A models is calculated by:
+			B_A(r,theta,z) = B_S(r,theta,z) * tanh(r / r5)	where r5= 20 parsecs
+		The value of 20 parsecs is hard-coded into CRT.
+	- It must be noted that what Stanev considers a *SS_A field, HMR consider a *SS_S field.
+	CRT uses the convention that a *SS_S field preserves field direction upon crossing the galactic disk.
+
+
+    Dipole Model
+	The magnitudes for each component are given below. 'theta' and 'phi' refer to the zenith and azimuthal angles in the spherical coordinate centered on the galaxy. The user specifies the total field strength at the Sun's position.
+
+	Bx = -3 * sin(theta)cos(theta)cos(phi) / (r^3)
+	By = -3 * sin(theta)cos(theta)sin(phi) / (r^3)
+	Bz = (1 - 3*{cos(theta)}^2) / (r^3)
+
+    Uniform Model
+	This field uses the System-A coordinate system (i.e. at the Sun, Bx points toward the GC). Simply, the field has 3 components (Bx, By, Bz) which are uniform in space. The units are [microGauss].
+
+    Simple Random
+        This field is constructed at the particle position at the beginning of each timestep. There are 4 parameters: Norm, Sigma_norm, CorrLen, and Sigma_corrlen. The direction at each point is sampled from a random isotropic distribution.
+
+    Ring Model
+	The magnetic field is nonzero for a defined radial range in the Galactic plane. The field experiences exponential decay perpendicular to the plane.
+
+	Bx = norm*sin(fieldPhi(x,y))*exp(-fabs(z)/scaleHeight)
+	By = norm*cos(fieldPhi(x,y))*exp(-fabs(z)/scaleHeight)
+	Bz = 0
+
+    Toroidal Model
+	A simple toroidal magnetic model taken from
+	Prouza, Smida. Astronomy and Astrophysics, v.410, p.1-10 (2003), also (arXiv:astro-ph/0307.165).
+	The field has constant magnitude within a disk oriented parallel to the Galactic plane, and has exponential decay beyond the disk radius out to the maximum extent Rmax. There are 4 parameters: maximum value of toroidal field Bmax, radius of circle for toroidal field R, scale height for decay perpendicular to Galactic plane H, half-width of Lorentzian distribution P.
+
+	Bx = -B_t sin(phi)
+	By = B_t cos(phi)
+	Bz = 0
+
+	where B_t = Bmax * (1+((|z|-H)/P)^2)^-1                 for rho < R
+		  = Bmax * exp(-rho/R) * (1+((|z|-H)/P)^2)^-1   for rho >= R
+
+    Inverse Model
+	The field magnitude varies as r^n with galactocentric distance. The field has zero magnitude within a certain galactocentric distance. The field vector lies parallel to the Galactic plane (no Bz component) at a specified pitch angle 'p' to the azimuthal direction (similar to the spiral field). The field attenuates with distance from the Galactic plane; the user can select between 3 forms: none, exponential, or smooth.
+	
+	Bx = norm* pow( (r/solarDistance),index ) *zAtten(z)*(sin(p)*cos(phi) - cos(p)*sin(phi))
+	By = norm* pow( (r/solarDistance),index ) *zAtten(z)*(-1.*sin(p)*sin(phi) - cos(p)*cos(phi))
+	Bz = 0
+
+	where zAtten() is the attenuation factor as a function of height above the Galactic disk and take the form,
+	model = 'none':		zAtten = 1				for all z
+	      = 'expo':		       = exp( -|z| / Z1)
+	      = 'smooth':	       = 1. / ( 1. + ( |z| / Z1) )
+
+    SUN2008 Models
+	In both models (ass+ring and bss), a regular double-torus field exists away from the Galactic plane. The field direction reverses across the plane. In the disk, the ass+ring component combines a basic axisymmetric spiral field with galactocentric annuli where the field reverses direction. The bss model is simply a bisymmetric spiral field.
+	In the ass+ring model, there are 3 reversals with galactocentric distance.
+	The disk components of both models experience exponential attenuation away from the disk and also in galactocentric distance within the disk.
+	Full descriptions of these 2 models can be found in Sun et al., A&A 477, 573-592 (2008).
+
+	The halo component is purely aximuthal (Br=0, Bz=0, B_theta !=0). The halo is characterized by,
+	B(R,z) = BH0 * (1./denom) * (R/RH0) * exp[ -(R-RH0) / RH0 ]
+		where denom = 1 + (cap*cap)
+		and cap = ( |z| - zH0) / AAA	where	AAA = zH1  for |z| <  zH0
+							      zH1a for |z| >= zH0
+
+	For both disk components, Bz=0 and the field magnitude takes the form,
+	D1(R,theta,z) * D2(R,theta,z)
+	In both models, D1 takes the form,
+
+	D1 = Bc						for R >  Rc
+	   = B0 * exp[-(R-R_sun) / R0] * exp[-|z| / z0] for R <= Rc
+
+	For ass+ring, D2 takes the form of multiplicative factors for reversing the field direction,
+	D2 = +1 for R1 < R		(+1) refers to the clockwise direction as viewed
+	   = -1 for R2 < R <= R1		from the NGP and is consistent with the
+	   = +1 for R3 < R <= R2		direction of positive field magnitude used
+	   = -1 for      R <= R3		in the other CRT field models
+
+	For the bss model, D2 takes the following form,
+	D2 = -1 * cos[ theta + beta * ln(R / QQQ)]
+		where beta = 1 / tan(PPP)
+		For R >  Rb, PPP = p1 and QQQ = Rb1
+		    R <= Rb,     = p2 and     = Rb2
+
+    JF2012 Models
+	Please refer to [R. Jansson & G. Farrar, Astrophys.J. 757 (2012) 14] for full details.
+
+
+
+--------------------------------------
+  ENERGY SPECTRUM AND PARTICLES
+    Particle energies are drawn from power law energy spectra. Spectrum parameters include minimum and maximimum energies, and spectral index. Each desired source is constructed with its own energy spectrum. A spectral index of (-1) is not supported, as it leads to divergences when calculating energies. The spectrum is assumed to follow the form,
+	dN/dE = norm * E^(alpha)
+
+    Broken power law spectra incorporate a break energy, where the spectrum follows different indices above and below this energy.
+
+    Particle properties include: mass, charge, energy, position and velocity, initial position and velocity, hit status, and distance of closest approach (DOCA). Lorentz factor and velocity are calculated from the energy. Energy losses are not accounted.
+
+
+
+--------------------------------------
+  EXAMPLES SOURCES AND FIELDS
+
+I 10 0.01 -2.7 3 200 1 1 0
+	Ten sources generated random isotropically in the sky with crShift value of (0.01kpc). Protons energies are drawn from a spectrum following (-2.7) power law between 3 and 200 EeV. If backtracking, draw directions from isotropic exposure
+
+I 10 0.01 -4.2 40 56 4 2 1
+	Ten sources generated random isotropically in the sky with crShift value of (0.01kpc). Helium nuclei energies are drawn from a spectrum following (-4.2) power law between 40 and 56 EeV. If backtracking, draw directions from Auger exposure
+
+B 10 2.4 3 -90 1 1 0
+	Ten particles are generated along the galactic longitude (-90 degrees) with a crShift value of (2.4kpc). Each proton has an ebergy of 3EeV. If backtracking, draw directions from isotropic exposure
+
+F bss_s stanev 2.0308 -10 10.55 2 1 4 0.5
+	A Stanev-type BSS_S magnetic field is constructed. The overall field strength is (2.0308)microGauss at the solar position with a pitch angle 0f (-10degrees). The scale lengths are r1=10.55 , r3=1 , r4=4 , z_cut=0.5. There is no tanh() factor is the stanev formulation, however, the user must still provide a value.
+
+F ass_a hmr 1 -8 10 2 0.3 4 1
+	A HMR-type ASS_A magnetic field is constructed. The overall field strength at the solar position is (1)microGauss with a pitch angle of (-8degrees). the scale lengths are r1=10, r2=2 , r3=0.3 , r4=4. There is no z_cut parameter used in the HMR formulation, but hte user must still provide a value in the inputfile.
+	
+F dipole 1
+	A dipole (poloidal) field is constructed. The field strengths and components at the solar position are BX=BY=0. BZ = 1microGauss and point from the South Galactic Pole to the North.
+
+D 0 0 0 0.3
+	A detector located at the solar position with radius 0.3 kpc
+
+D 8.5 0 1.0 0.12
+	A detector located 1.0 above the Galactic center with radius 0.12 kpc (assuming the Sun is 8.5 kpc from the GC)
+
+
+
+----------------------------------------
+  FIELD PARAMETERIZATIONS
+	To reproduce the Stanev and HMR fields used in the respective papers, use the following field configurations:
+
+F bss_s stanev 2.030853 -10 10.55 1 1 4 0.5
+F ass_a stanev 2.030853 -10 10.55 1 1 4 0.5
+
+F bss_s hmr 2 -10 10.55 2 0.3 4 1
+F ass_a hmr 2 -10 10.55 2 0.3 4 1
+
+
+
+----------------------------------------
+  ADDITIONAL PROGRAMMING
+	Beginning with release version 2.0 there are additional source files named (test.cc) and (getfield.cc)
+
+	It is also possible to output details of the entire trajactory of a particle by uncommenting the "#define TRACKS=1" at the beginning of CRT.cc and recompiling. The option "trackfile=/filename" should then be included in the run command in addition to "infile=/inputfilename". Step-by-step output will include the integrated time, position, and velocity. Note that the resulting file can become very large.
+
+  ==>test.cc
+	at the command line, type 'make test'. This will compile and produce 'test', an executable which simulates 2 particle propagating through a predefined uniform magnetic field. Since there are exact solutions are known for such a scenario, the calculated and expected results can be compared and error estimated.
+	There are no required runtime parameters. Simply type
+		./test
+
+	The magnetic field model is 
+		Bx=0	By=0	Bz= 1 microGauss
+	The particle are assumed proton, E = 1EeV
+	The initial position for both particles are
+		x=10kpc	y=0	z=0
+	The directions of the initial velocities are
+		1)	vx=0	vy=1	vz=0
+		2)	vx=0	vy=0	vz=1
+
+	The header information of the output file is the same except for the column labels and content, given below
+	
+	=====
+	source number
+	time[yr] 
+	Xcoor[kpc] 
+	Ycoor[kpc] 
+	Zcoor[kpc] 
+	Xexact[kpc] 
+	Yexact[kpc] 
+	Zexact[kpc]
+	VX[kpc/yr]
+	VY[kpc/yr]
+	VZ[kpc/yr]
+	VXexact[kpc/yr]
+	VYexact[kpc/yr]
+	VZexact[kpc/yr]
+	position rms
+	velocity rms
+	=====
+
+	Position rms refers to the value:
+	   sqrt(pow(xexact-xcalc,2)+pow(yexact-ycalc,2)+pow(zexact-zcalc,2))
+
+	The velocity rms substitutes Xexact with VXexact, Xcalc with VXcalc, etc.
+
+	The exact position and velocity correspond to the exact solution for a charged particle traveling in a uniform magnetic field. These solutions can be found in most graduate electrodynamics texts and are left as an exercise to the reader.
+
+	
+
+  ==>getfield.cc
+	at the command line, type 'make getfield'. This will compile and produce 'getfield', a program that reads the input configuration file and grids any listed magnetic fields. The only runtime parameter required is 'infile' as the user must provide a magnetic field model. 'ofile' is optional.	
+	The user can specify runtime parameters regarding the gridding characteristics within the getfield.cc source code:
+	minx - units of kpc, minimum x value (default -30)
+	maxx - units of kpc, maximum x value (default 30)
+	nx - number of bins along x (default 100)
+
+	miny - units of kpc, minimum y value (default -30)
+	maxy - units of kpc, maximum y value (default 30)
+	ny - number of bins along y (default 100)
+
+	minz - units of kpc, minimum z value (default -30)
+	maxz - units of kpc, maximum z value (default 30)
+	nz - number of bins along z (default 100)
+
+	The magnitude of the magnetic field is computed at each point on the grid and output according to 'ofile' with the format:
+	X [kpc]
+	Y [kpc]
+	Z [kpc]
+	B_x [nG]
+	B_y [nG]
+	B_z [nG]
+*/
