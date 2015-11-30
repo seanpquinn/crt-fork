@@ -1,0 +1,281 @@
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/CRT/!svn/ver/341/releases/3.0.3/include
+END
+source_latitudinal.h
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/CRT/!svn/ver/341/releases/3.0.3/include/source_latitudinal.h
+END
+source_isotropic.h
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/CRT/!svn/ver/341/releases/3.0.3/include/source_isotropic.h
+END
+bfield_ssfield.h
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/CRT/!svn/ver/341/releases/3.0.3/include/bfield_ssfield.h
+END
+source.h
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/CRT/!svn/ver/341/releases/3.0.3/include/source.h
+END
+rk4.h
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/CRT/!svn/ver/341/releases/3.0.3/include/rk4.h
+END
+particle.h
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/CRT/!svn/ver/341/releases/3.0.3/include/particle.h
+END
+source_arbtraj.h
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/CRT/!svn/ver/341/releases/3.0.3/include/source_arbtraj.h
+END
+gvector.h
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/CRT/!svn/ver/341/releases/3.0.3/include/gvector.h
+END
+source_longitudinal.h
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/CRT/!svn/ver/341/releases/3.0.3/include/source_longitudinal.h
+END
+source_point.h
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/CRT/!svn/ver/341/releases/3.0.3/include/source_point.h
+END
+spectrum_monoplaw.h
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/CRT/!svn/ver/341/releases/3.0.3/include/spectrum_monoplaw.h
+END
+odeint.h
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/CRT/!svn/ver/344/releases/3.0.3/include/odeint.h
+END
+infileparser.h
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/CRT/!svn/ver/341/releases/3.0.3/include/infileparser.h
+END
+bfield_pshirkov_disk.h
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/CRT/!svn/ver/341/releases/3.0.3/include/bfield_pshirkov_disk.h
+END
+bfield_uniform.h
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/CRT/!svn/ver/341/releases/3.0.3/include/bfield_uniform.h
+END
+bfield_sun2008.h
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/CRT/!svn/ver/341/releases/3.0.3/include/bfield_sun2008.h
+END
+bfield.h
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/CRT/!svn/ver/341/releases/3.0.3/include/bfield.h
+END
+bfield_combinedfield.h
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/CRT/!svn/ver/341/releases/3.0.3/include/bfield_combinedfield.h
+END
+bfield_ass_a.h
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/CRT/!svn/ver/341/releases/3.0.3/include/bfield_ass_a.h
+END
+commandparser.h
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/CRT/!svn/ver/341/releases/3.0.3/include/commandparser.h
+END
+stepperdopr5.h
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/CRT/!svn/ver/341/releases/3.0.3/include/stepperdopr5.h
+END
+bfield_bss_a.h
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/CRT/!svn/ver/341/releases/3.0.3/include/bfield_bss_a.h
+END
+transforms.h
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/CRT/!svn/ver/341/releases/3.0.3/include/transforms.h
+END
+OutputSrvc.h
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/CRT/!svn/ver/341/releases/3.0.3/include/OutputSrvc.h
+END
+spectrum_monoE.h
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/CRT/!svn/ver/341/releases/3.0.3/include/spectrum_monoE.h
+END
+spectrum.h
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/CRT/!svn/ver/341/releases/3.0.3/include/spectrum.h
+END
+nr3.h
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/CRT/!svn/ver/341/releases/3.0.3/include/nr3.h
+END
+bfield_ring.h
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/CRT/!svn/ver/341/releases/3.0.3/include/bfield_ring.h
+END
+bfield_toroid.h
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/CRT/!svn/ver/341/releases/3.0.3/include/bfield_toroid.h
+END
+stepperdopr853.h
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/CRT/!svn/ver/341/releases/3.0.3/include/stepperdopr853.h
+END
+converter.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/CRT/!svn/ver/341/releases/3.0.3/include/converter.h
+END
+detector.h
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/CRT/!svn/ver/341/releases/3.0.3/include/detector.h
+END
+bfield_jf2012.h
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/CRT/!svn/ver/344/releases/3.0.3/include/bfield_jf2012.h
+END
+bfield_jf2012_random.h
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/CRT/!svn/ver/344/releases/3.0.3/include/bfield_jf2012_random.h
+END
+source_eg.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/CRT/!svn/ver/341/releases/3.0.3/include/source_eg.h
+END
+source_crsmear.h
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/CRT/!svn/ver/341/releases/3.0.3/include/source_crsmear.h
+END
+bfield_ass_s.h
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/CRT/!svn/ver/341/releases/3.0.3/include/bfield_ass_s.h
+END
+bfield_pshirkov_halo.h
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/CRT/!svn/ver/341/releases/3.0.3/include/bfield_pshirkov_halo.h
+END
+bfield_bss_s.h
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/CRT/!svn/ver/341/releases/3.0.3/include/bfield_bss_s.h
+END
+bfield_simplerndm.h
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/CRT/!svn/ver/341/releases/3.0.3/include/bfield_simplerndm.h
+END
+bfield_dipole.h
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/CRT/!svn/ver/341/releases/3.0.3/include/bfield_dipole.h
+END
+stepper.h
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/CRT/!svn/ver/341/releases/3.0.3/include/stepper.h
+END
+globals.h
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/CRT/!svn/ver/341/releases/3.0.3/include/globals.h
+END
+source_cr.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/CRT/!svn/ver/341/releases/3.0.3/include/source_cr.h
+END
+bfield_rN.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/CRT/!svn/ver/341/releases/3.0.3/include/bfield_rN.h
+END
+spectrum_brokenplaw.h
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/CRT/!svn/ver/341/releases/3.0.3/include/spectrum_brokenplaw.h
+END

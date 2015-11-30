@@ -1,0 +1,196 @@
+# This file is a simple test file which shows examples of all the optional 
+# sources and fields.  Below is a short description of each option.
+#
+#
+############### SOURCES EXPLANATIONS ########################################################
+#  Name      ID ARG0    ARG1     ARG2     ARG3     ARG4    ARG5      ARG6    ARG7    ARG8      ARG9  ARG10
+# isotropic: I  NPSRC   CRSHIFT  CRINDEX  EMIN   EMAX    PMASS  PCHARGE 
+# isotropic-mono-plaw-auger: X  NPSRC   CRSHIFT  CRINDEX  EMIN   EMAX    PMASS  PCHARGE 
+# point:     P  NPSRC   CRSHIFT  CRINDEX  EMIN   EMAX       D         LONG    LAT   BEAMANGLE   PMASS   PCHARGE
+# long:      L  NPSRC   CRSHIFT  ENERGY   STARTANGLE PMASS   PCHARGE
+# long-mono-plaw-auger: Y  NPSRC   CRSHIFT  ENERGY   STARTANGLE PMASS   PCHARGE
+# lat:       B  NPSRC   CRSHIFT  ENERGY   STARTANGLE PMASS   PCHARGE 
+# lat-mono-plaw-auger: Z  NPSRC   CRSHIFT  ENERGY   STARTANGLE PMASS   PCHARGE
+# CR:        C  ENERGY  LONG     LAT      PMASS      PCHARGE
+# ArbTraj:   A  ENERGY   Px    Py    Pz    Vx    Vy    Vz   PMASS      PCHARGE
+# EGsrc:     E NPSRC CRSHIFT CRINDEX  EMIN  EMAX  D LONG LAT BRAND LCORR LEG PMASS PCHARGE
+# isotropic-broken-plaw: BPI NPSRC  CRSHIFT  INDEX0  INDEX1  EBREAK  EMIN EMAX PMASS PCHARGE
+# isotropic-broken-plaw-auger (backtrk and Auger exposure): BPX  NPSRC  CRSHIFT  INDEX0  INDEX1  EBREAK  EMIN EMAX PMASS PCHARGE
+#
+#
+# The units and specific format for source parameters are given below:
+#	NPSRC - number of particles from this source
+#	CRSHIFT - [kpc], size of disk within which to generate particles
+#	CRINDEX - spectral index for plaw spectrum (over entire energy range), DO NOT SET = (-1)
+#	EMIN - [EeV], minimum energy of spectrum
+#	EMAX - [EeV], maximum energy of spectrum
+#       EBREAK - [EeV], break energy of broken-plaw spectrum
+#       INDEX0 - spectral index below EBREAK
+#       INDEX1 - spectral index above EBREAK
+#	PMASS - mass of particle, set as multiples of proton mass
+#	(PMASS=1 -> m=1.67*10^-27 kg, PMASS=26 -> 26*1.67*10^-27 kg)
+#	PCHARGE - charge of particle, set as multiples of proton charge (same as PMASS)
+#	D - [kpc], distance to source. if D=(-999), then source is assumed EXG and distance automatically set to 50kpc
+#	LONG - [degrees], Galactic longitude coordinate of source
+#	LAT - [degrees], Galactic latitude coordinate of source
+#	STARTANGLE - [degrees], coordinate of strip for Long/Lat sources
+#	BEAMANGLE - [degrees], opening angle of 'jet' at the source, uniform over 
+#  solid angle. All particle velocity vectors will lie within directions 
+#  encompassed by the 'jet.'
+#	ENERGY - [EeV], energy of particle
+#	Px - [kpc], the x-component of the source location for the ArbTraj source class in System-A
+#	Py - [kpc], the y-component of the source location for the ArbTraj source class
+#	Pz - [kpc], the z-component of the source location for the ArbTraj source class
+#	VX - the unnormalized x-component of the particle velocity
+#	VY - the unnormalized y-component of the particle velocity
+#	VZ - the unnormalized z-component of the particle velocity
+#       BRAND - [microGauss], magnitude of turbulent magnetic field outside Galaxy
+#       LCORR - [kpc], correlation length of turbulent magnetic field outside Galaxy
+#       LEG - [kpc], distance to source
+#
+#
+#
+############### MAGNETIC FIELDS ################################################
+# Name      ID FTYPE  MODEL  ARG1  ARG2  ARG3   ARG4   ARG5   ARG6   ARG7
+#	ASS_A:    F  ass_a  model NORM PITCH SCALE1 SCALE2 SCALE3 SCALE4 ZCUT
+#	ASS_S:    F  ass_s  model NORM PITCH SCALE1 SCALE2 SCALE3 SCALE4 ZCUT
+#	BSS_A:    F  bss_a  model NORM PITCH SCALE1 SCALE2 SCALE3 SCALE4 ZCUT
+#	BSS_S:    F  bss_s  model NORM PITCH SCALE1 SCALE2 SCALE3 SCALE4 ZCUT
+#	UNIFORM:  F  uniform   BX   BY   BZ
+#	DIPOLE:   F  dipole   NORM
+#       SIMRNDM:  F  simprand NORM   CORRLEN   SIGMALEN   SIGMANORM
+#       RING:     F  ring   NORM   INNEREDGE   OUTEREDGE  SCALE5
+#       TOROID:   F  toroidal  TORRAD  SCALE6  LORWIDTH  BMAX
+#       INVERSE:  F  r-2    NORM  INNEREDGE PITCH model SCALE3
+#       SUN2008ASS: F sun2008 ass+ring PITCH  B0  R0  Bc  Rc  z0  R1  R2  R3  BH0  zH0  zH1  zH1a  RH0
+#       SUN2008BSS: F sun2008 bss B0  R0  Bc  Rc  z0  Rb  p1  Rb1  p2  Rb2  BH0  zH0  zH1  zH1a  RH0
+#       JF2012:   F jf2012 SIGMA USESTRI READ_FLAG STRIATEDFILE
+#	JF2012 random:   F jf2012_random READ_FLAG NCELLS CELLFILE
+#
+# The units and specific format for field parameters are given below:
+#       'model' - for the *SS* fields, select either 'stanev' or 'hmr'.
+#                 Descriptions of these fields can be found in:
+#                   Stanev. Astropart. Journ. 479:290, 1997  (arXiv:astro-ph/9607086)
+#                   Harari, Mollerach, Roulet. JHEP 9908:022, 1999  (arXiv:astro-ph/9906309)
+#       'model' - for the INVERSE field, this specifies the  Z-attenuation form.
+#                 select from 'none', 'expo', or 'smooth'
+#	NORM (*ss_*) - [microGauss], the total magnitude of the
+# spiralfield at the position of the Sun.
+#       NORM (dipole) - [microGauss], a value of (1) will produce a
+# dipole field with components Bx=By=0, Bz=(1 microGauss). a value of
+# (4) will produce a dipole field with Bx=By=0, Bz=(4 microGauss).
+#       PITCH - [degrees], looking from the Galactic North Pole, the pitch angle is 
+#  positive if the clockwise tangent to the spiral is outside the circle with radius R
+#	SCALE1 - [kpc], Galactocentric distance of the location of maximum field 
+#  strength in the direction (0,0)
+#       SCALE2 - [kpc], scale length for tanh attenuation factor in
+# the Galactic disk (not used for stanev field, but an entry here is required anyway)
+#	SCALE3 - [kpc], scale length for attenuation decay along
+# z-direction
+#	SCALE4 - [kpc], scale length for attenuation decay along
+# z-direction
+#	ZCUT - [kpc], distance in z-direction where attenuation decay
+# scale length changes from SCALE3 to SCALE4 (not used for hmr field,
+# but an entry here is required anyway)
+#	B{X,Y,Z} - [microGauss], same as for NORM
+# 	CORRLEN - [kpc], correlation length of cell sizes
+# 	SIGMALEN - [kpc], sigma of gaussian distribution to draw cell sizes from
+# 	SIGMANORM - [microGauss], sigma of distribution to draw cell normalization from.
+#	INNEREDGE - [kpc], inner edge of annulus of nonzero field magnitude
+#	OUTEREDGE - [kpc], outer edge of annulus
+#	SCALE5 - [kpc], scale length for exponential decay along z-direction
+#	TORRAD - [kpc], radius of circle for constant field magnitude
+#	SCALE6 - [kpc], scale height above Galactic plane
+#	LORWIDTH - [kpc], half-width of Lorentzian distribution
+#	BMAX - [kpc], maximum value of field magnitude
+#	B0 - [microGauss], the field magnitude at the solar local vicinity
+#	R0 - [kpc], scale length for the galactocentric exponential attenuation of the disk component
+#	Bc - [microGauss], the field magnitude of the constant magnitude component
+#	Rc - [kpc], maximum galactocentric distance of the constant field magnitude component
+#	z0 - [kpc], scale length for the z-direction exponential attenuation of the disk component
+#	R1 - [kpc], outer distance for field direction reversal of disk component
+#	R2 - [kpc], mid distance for field direction reversal of disk component
+#	R3 - [kpc], inner distance for field direction reversal of disk component
+#	BH0 - [microGauss], field magnitude of halo component at the coordinates (rho=RH0,phi=0,z=zH0)
+#	zH0 - [kpc], height above Galactic plane where scale height for halo z-attenuation changes from zH1 to zH1a
+#	zH1 - [kpc], scale height for halo component z-attenuation for |z|<zH0
+#	zH1a - [kpc], scale height for halo component z-attenuation for |z|>zH0
+#	RH0 - [kpc], scale length for the galactocentric exponential attenuation of the halo component
+#	Rb - [kpc], galactocentric distance where scale height for disk component galactocentric attenuation changes from Rb1 to Rb2
+#	p1 - [degrees], pitch angle of field vectors for galactocentric distances r>Rb
+#	Rb1 - [kpc], scale length of disk component for galactocentric distances r>Rb
+#	p2 - [degrees], pitch angle of field vectors for galactocentric distances r<Rb
+#	Rb2 - [kpc], scale length of disk component for galactocentric distances r<Rb
+#       SIGMA - [], the amount of variation with which to change the parameters from their best-fit values. This is how many "sigma" to shift every parameter.
+#	READ_FLAG - [], flag for specifying whether to generate the random field cells by polling the RNG or reading them from a file. Use 1 to generate, or 0 to read from file.
+#	NCELLS - [], number of unique cells to generate, or field instances to read from the file. If outputting, the first line of the file will always contain the column labels. If reading from file, this first line is read and discarded.
+#	CELLFILE - [], the absolute path of the file to hold the random field cell instances
+#       USESTRI - [], flag to use the striated random component or not
+#	STRIATEDFILE - [], the absolute path of the file to hold the striated field instances
+#
+############### INPUT EXAMPLES #################################################
+#
+#
+##### DETECTOR #####################
+#D 1.0 0.0 0.0 1.0
+#
+##### SOURCES ######################
+#    isotropic
+#I 1 1.0 -2.7 55 200 1 1
+#X 10 0.01 -2.7 3 200 1 1
+#    point source at specific location
+#P 10 .01 -2.7  3  200  9.0 0 -2 3 1 1
+#    Longitude source
+#L 10  0.01 3 -180 1 1
+#Y 10  0.01 3 -180 1 1
+#    Latitude source
+#B 10  0.01 3 -90 1 1
+#Z 10  0.01 3 -30 1 1
+#    Single particle
+#C 75  45  60 1 1
+#    Cosmic rays with E and Ang. smearing
+#CS 10 0 0 1 1 1000 0.1 1.0
+# Arbitrary Trajectory Particle
+#A 55  10 0 0 0 1 0 1 1
+#  extra galactic point source at specific location
+#E 10 0 -2.7 3 200 30 10 15 0.0001 100 75000 1 1
+# isotropic broken powerlaw source
+#BPI 10 0.01 -2.7 -3 50 3 200 1 1
+#BPX 10 0.01 -2.7 -3 50 3 200 1 1
+##### FIELDS ######################
+# BSS_S
+#F bss_s stanev 2 -10 10.55 2 1 4 1
+#F bss_s hmr 2 -10 10.55 2 1 4 1
+# ASS_S
+#F ass_s stanev 5 -8 10.55 2 1 4 1
+#F ass_s hmr 2 -10 10.55 2 1 4 1
+# BSS_A
+#F bss_a stanev 2 -10 10.55 2 1 4 1
+#F bss_a hmr 2 -10 10.55 2 1 4 1
+# ASS_A
+#F ass_a stanev 2 -10 10.55 2 1 4 1
+#F ass_a hmr 2 -10 10.55 2 1 4 1
+# Uniform
+#F uniform 1 1 1
+# Dipole
+#F dipole 0.01
+# Simple Random Field
+#F  simprand 3   0.5   0.1   1
+# Ring
+#F ring 2 5 13 1.5
+# Toroidal
+#F toroidal 15 1.5 0.3 2
+# Inverse r^-2 field
+#F r^N 2 -2 3.0 -15 smooth 1.2
+# Sun2008 ASS+RING
+#F sun2008 ass+ring -12 2 10 2 5 1 7.5 6 5 10 1.5 0.2 0.4 4
+# Sun2008 BSS
+#F sun2008 bss 2 6 2 3 1 6 -10 9 -15 6 10 1.5 0.2 0.4 4
+# Jansson-Farrar 2012 regular only
+#F jf2012 0 0
+# Jansson-Farrar 2012 regular and random striated component (first example = reading from file, second = generate-on-fly)
+#F jf2012 0 1 0 /file/striated.txt
+#F jf2012 0 1 1 /file/striated.txt
+# Jansson-Farrar 2012 small scale random component (no regular or striated included) (first example = reading from file, second = generate-on-fly)
+#F jf2012_random 0 1000 /file/CellInstances.txt
+#F jf2012_random 1 1000 /file/CellInstances.txt

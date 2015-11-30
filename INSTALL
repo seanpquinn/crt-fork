@@ -1,0 +1,42 @@
+INSTALL file for CRT
+--------------------
+====================
+
+CRT is a tracking tool for propagating ultra-high energy cosmic rays from various source distributions through models of the Galactic magnetic field.
+It is designed around a simple interface intended for public scientific use.
+
+The webpage for CRT is
+  http://crt.mps.ohio-state.edu
+which contains information describing the program and links to the SVN repository containing the current and past public releases.
+The credentials for accessing download page are
+  username: public
+  password: tracker
+
+
+The only external dependency of CRT is the random number generation libraries from GSL.
+THESE ARE REQUIRED!!
+The location of 'gsl-config' MUST be added to your path.
+
+
+Building
+========
+Once the source code is checked out, simply type
+
+  make
+
+to compile.
+CRT includes a preconfigured Makefile.
+The executable 'CRT' can be run with
+
+  ./bin/CRT
+
+For information on running CRT with the correct runtime parameters, view the accompanying README-CRT file or view the webpage.
+To produce the executables 'test' and 'getfield', simply type
+
+  make test  -or-   make getfield
+
+These can be executed with
+
+  ./bin/test    -or-    ./bin/getfield
+
+More information can be found in the README-CRT file.

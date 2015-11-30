@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/CRT/!svn/ver/341/releases/3.0.3/src
+END
+OutputSrvc.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/CRT/!svn/ver/341/releases/3.0.3/src/OutputSrvc.cpp
+END
+transforms.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/CRT/!svn/ver/341/releases/3.0.3/src/transforms.cpp
+END
+nr3.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/CRT/!svn/ver/341/releases/3.0.3/src/nr3.cpp
+END
+odeint.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/CRT/!svn/ver/341/releases/3.0.3/src/odeint.cpp
+END
+infileparser.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/CRT/!svn/ver/341/releases/3.0.3/src/infileparser.cpp
+END
+stepperdopr853.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/CRT/!svn/ver/341/releases/3.0.3/src/stepperdopr853.cpp
+END
+detector.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/CRT/!svn/ver/341/releases/3.0.3/src/detector.cpp
+END
+commandparser.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/CRT/!svn/ver/341/releases/3.0.3/src/commandparser.cpp
+END
+stepperdopr5.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/CRT/!svn/ver/341/releases/3.0.3/src/stepperdopr5.cpp
+END
