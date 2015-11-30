@@ -38,6 +38,7 @@ protected:
 
   // disk field
   double bdisk[8];  // field strengths of arms at r=5 kpc
+  double fxsec[8];  // relative cross-sectional areas of spirals
                                           //   b8 is determined from other 7
   double rc_B[8];                        // radii where each arm crosses the
                                           //   negative x-axis
@@ -67,7 +68,30 @@ protected:
   
 public:
   // CONSTRUCTOR FOR REGULAR FIELD ONLY (NO STRIATED)
-  JF2012(gsl_rng *r, double sigma, bool stri):BFIELD(),
+  JF2012(gsl_rng *r, 
+    double sigma, 
+    bool stri,
+    double JF12b1,
+    double JF12b2,
+    double JF12b3,
+    double JF12b4,
+    double JF12b5,
+    double JF12b6,
+    double JF12b7,
+    double JF12bring,
+    double JF12hdisk,
+    double JF12wdisk,
+    double JF12Bn,
+    double JF12Bs,
+    double JF12rn,
+    double JF12rs,
+    double JF12wh,
+    double JF12z0,
+    double JF12Bx,
+    double JF12ThX,
+    double JF12rXc,
+    double JF12rX
+    ):BFIELD(),
   rng_ptr(r),bl_use_stri(stri),bl_generate(false),rndmfile("")  
   {
   // these parameters are 'constant' within the model
@@ -75,31 +99,45 @@ public:
   pitch = 11.5;
   fsigma = sigma;
 
+  fxsec[0] = 0.130;
+  fxsec[1] = 0.165;
+  fxsec[2] = 0.094;
+  fxsec[3] = 0.122;
+  fxsec[4] = 0.13;
+  fxsec[5] = 0.118;
+  fxsec[6] = 0.084;
+  fxsec[7] = 0.156;
+  
   // these parameters are subject to sigma shifting
-  bdisk[0] =  0.1 + fsigma*1.8;  rc_B[0] =  5.1;
-  bdisk[1] =  3.0 + fsigma*0.6;  rc_B[1] =  6.3;
-  bdisk[2] = -0.9 + fsigma*0.8;  rc_B[2] =  7.1;
-  bdisk[3] = -0.8 + fsigma*0.3;  rc_B[3] =  8.3;
-  bdisk[4] = -2.0 + fsigma*0.1;  rc_B[4] =  9.8;
-  bdisk[5] = -4.2 + fsigma*0.5;  rc_B[5] = 11.4;
-  bdisk[6] =  0.0 + fsigma*1.8;  rc_B[6] = 12.7;
-  bdisk[7] =  2.7 + fsigma*1.8;  rc_B[7] = 15.5;
+  
+  bdisk[0] = JF12b1;  rc_B[0] =  5.1;
+  bdisk[1] = JF12b2;  rc_B[1] =  6.3;
+  bdisk[2] = JF12b3;  rc_B[2] =  7.1;
+  bdisk[3] = JF12b4;  rc_B[3] =  8.3;
+  bdisk[4] = JF12b5;  rc_B[4] =  9.8;
+  bdisk[5] = JF12b6;  rc_B[5] = 11.4;
+  bdisk[6] = JF12b7;  rc_B[6] = 12.7;
+  for(size_t i = 0; i < 7; i++)
+  {
+    bdisk[7] += -fxsec[i]*bdisk[i]/fxsec[7];
+  }
+  rc_B[7] = 15.5;
 
-  bring = 0.1 + fsigma*0.1;
-  hdisk = 0.40 + fsigma*0.03;
-  wdisk = 0.27 + fsigma*0.08;
+  bring = JF12bring;
+  hdisk = JF12hdisk;
+  wdisk = JF12wdisk;
 
-  Bn =  1.4 + fsigma*0.1;
-  Bs = -1.1 + fsigma*0.1;
-  rn = 9.22 + fsigma*0.08;
-  rs = 17;                    // rs > 16.7 kpc, no sigma given
-  wh = 0.20 + fsigma*0.12;
-  z0 = 5.3 + fsigma*1.6;
+  Bn = JF12Bn;
+  Bs = JF12Bs;
+  rn = JF12rn;
+  rs = JF12rs;                    // rs > 16.7 kpc, no sigma given
+  wh = JF12wh;
+  z0 = JF12z0;
 
-  BX = 4.6 + fsigma*0.3;
-  thetaX0 = 49.0 + fsigma*1;
-  rXc = 4.8 + fsigma*0.2;
-  rX = 2.9 + fsigma*0.1;
+  BX = JF12Bx;
+  thetaX0 = JF12ThX;
+  rXc = JF12rXc;
+  rX = JF12rX;
 
   beta = 1.38 + fsigma*0.41;
   sqrtbeta = sqrt(beta);

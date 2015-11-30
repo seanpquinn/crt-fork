@@ -277,9 +277,9 @@
         INVERSE:  F r^N    NORM INDEX INNEREDGE PITCH model SCALE3
         SUN2008:  F sun2008 ass+ring PITCH  B0  R0  Bc  Rc  z0  R1  R2  R3  BH0  zH0  zH1  zH1a  RH0
         SUN2008:  F sun2008 bss B0  R0  Bc  Rc  z0  Rb  p1  Rb1  p2  Rb2  BH0  zH0  zH1  zH1a  RH0
-        JF2012 regular only:   F jf2012 SIGMA 0
-        JF2012 regular and striated random:   F jf2012 SIGMA 1 READ_FLAG /file/containing/instances
-        JF2012 small scale random component:   F jf2012_random READ_FLAG NCELLS /file/containing/instances
+  JF2012 regular only:   F jf2012 SIGMA 0 JF12b1 JF12b2 JF12b3 JF12b4 JF12b5 JF12b6 JF12b7 JF12bring JF12hdisk JF12wdisk JF12Bn JF12Bs JF12rn JF12rs JF12wh JF12z0 JF12Bx JF12ThX JF12rXc JF12rX
+  JF2012 regular and striated random:   F jf2012 SIGMA 1 READ_FLAG /file/containing/instances
+  JF2012 small scale random component:   F jf2012_random READ_FLAG NCELLS /file/containing/instances
 
 	*SS_*: refers to Spiral Symmetric models. The user specifies the specific type, normalization, pitch angle, scale lengths, and zcut.
 
@@ -297,7 +297,8 @@
 
 	Sun2008: Modified spiral fields with toroidal halo component.
 
-	JF2012: The "regular" component of this model. Individual spiral arms confined within ~ 100 pc vertical extent within the Galactic disk and an azimuthal magnetic field near the GC (<3 kpc). Two halo fields away from the disk: traditional toroidal and X-shape. This model is designed to satisfy physical divergenceless of magnetic fields. Its parameters are hard-coded in the source file.
+	JF2012: The "regular" component of this model. Individual spiral arms confined within ~ 100 pc vertical extent within the Galactic disk and an azimuthal magnetic field near the GC (<3 kpc). Two halo fields away from the disk: traditional toroidal and X-shape. This model is designed to satisfy physical divergenceless of magnetic fields.
+	
 
 	JF2012 random: The random component of the JF2012 model. The striated component is included in a special constructor of the JF2012 regular class since the magnitude and direction are dependent on the regular field at each point. All parameters are hard-coded in the source file.
 
@@ -350,7 +351,33 @@
 
 	NB: SCALE2 is not used for 'stanev' fields and ZCUT is not used for 'hmr' fields; A complete field declaration still requires values, so simply set these parameters to (1) in these cases.
 
+    JF2012 SPECIFIC PARAMETERS
+  
+  ----- Disk -----
+  JF12b1 - [uG], Arm 1 field strength at r = 5 kpc
+  JF12b2 - [uG], Arm 2 field strength at r = 5 kpc
+  JF12b3 - [uG], Arm 3 field strength at r = 5 kpc
+  JF12b4 - [uG], Arm 4 field strength at r = 5 kpc
+  JF12b5 - [uG], Arm 5 field strength at r = 5 kpc
+  JF12b6 - [uG], Arm 6 field strength at r = 5 kpc
+  JF12b7 - [uG], Arm 7 field strength at r = 5 kpc
+  JF12bring - [uG], Ring field strength at 3 < r < 5 kpc
+  JF12hdisk - [kpc], Disk/halo transition
+  JF12wdisk - [kpc], Disk transition width
+  ----- Toroidal Halo -----
+  JF12Bn - [uG], Northern halo field strength
+  JF12Bs - [uG], Southern halo field strength
+  JF12rn - [kpc], North transition radius
+  JF12rs - [kpc], South transition radius
+  JF12wh - [kpc], Toroidal halo transition width
+  JF12z0 - [kpc], Vertical scale height
+  ----- X Halo -----
+  JF12Bx - [uG], Field strength at origin
+  JF12ThX - [deg], Elevated angle at z=0, r>r_X^C
+  JF12rXc - [kpc], Radius where Theta_X=Theta_X^0
+  JF12rX - [kpc], Exponential scale length
 
+  Total free parameters: 20
 
 --------------------------------------
   MAGNETIC FIELD MODELS

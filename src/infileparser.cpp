@@ -79,7 +79,16 @@ void parseinput(Detector* det, gsl_rng *r, bool backtrk, std::ifstream &in,
   double p1, p2, Rb, Rb1, Rb2;
   double BH0, zH0, zH1, zH1a, RH0;
   
+  // JF2012 field parameters and flags
+  // Init flags
   bool flag, stri;
+  // Disk parameters
+  double JF12b1,JF12b2,JF12b3,JF12b4,JF12b5,JF12b6,JF12b7;
+  double JF12bring,JF12hdisk,JF12wdisk;
+  // Toroidal halo parameters
+  double JF12Bn,JF12Bs,JF12rn,JF12rs,JF12wh,JF12z0;
+  // X halo
+  double JF12Bx,JF12ThX,JF12rXc,JF12rX;
 
   Source *src_ptr;
   std::string tstring;
@@ -828,7 +837,33 @@ void parseinput(Detector* det, gsl_rng *r, bool backtrk, std::ifstream &in,
         ssline >> index1 >> stri;
         JF2012* field;
         if(stri==0){
-          field = new JF2012(r, index1, stri);
+          ssline >> JF12b1 >> JF12b2 >> JF12b3 >> JF12b4 >> JF12b5 >>
+          JF12b6 >> JF12b7 >> JF12bring >> JF12hdisk >> JF12wdisk >>
+          JF12Bn >> JF12Bs >> JF12rn >> JF12rs >> JF12wh >> JF12z0 >>
+          JF12Bx >> JF12ThX >> JF12rXc >> JF12rX;
+          field = new JF2012(r,
+                      index1,
+                      stri,
+                      JF12b1,
+                      JF12b2,
+                      JF12b3,
+                      JF12b4,
+                      JF12b5,
+                      JF12b6,
+                      JF12b7,
+                      JF12bring,
+                      JF12hdisk,
+                      JF12wdisk,
+                      JF12Bn,
+                      JF12Bs,
+                      JF12rn,
+                      JF12rs,
+                      JF12wh,
+                      JF12z0,
+                      JF12Bx,
+                      JF12ThX,
+                      JF12rXc,
+                      JF12rX);
         }
         else{
           ssline >> flag >> tstring;
