@@ -244,7 +244,12 @@ public:
        << GetFSigma() << ' ';
 
     if(bl_use_stri==0){
-      ff << 0;
+      ff << 0 << " " << bdisk[0] << " " << bdisk[1] << " " << bdisk[2] << " " 
+      << bdisk[3] << " " << bdisk[4] << " " << bdisk[5] << " " << bdisk[6]
+      << " " << bring << " " << hdisk << " " << wdisk << " " << Bn
+      << " " << Bs << " " << rn << " " << rs << " " << wh
+      << " " << z0 << " " << BX << " " << thetaX0 << " " << rXc
+      << " " << rX << " " << bdisk[7];
     }
     else{
        ff << bl_use_stri << ' '
