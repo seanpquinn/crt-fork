@@ -249,7 +249,7 @@ public:
       << " " << bring << " " << hdisk << " " << wdisk << " " << Bn
       << " " << Bs << " " << rn << " " << rs << " " << wh
       << " " << z0 << " " << BX << " " << thetaX0 << " " << rXc
-      << " " << rX << " " << bdisk[7];
+      << " " << rX << "\n";
     }
     else{
        ff << bl_use_stri << ' '
