@@ -190,6 +190,12 @@ int main (int argc, char * const argv[]) {
   //#####################################//
   // Input/Output options
   //#####################################//    
+  bool rawinp = false;
+  std::string rinp = arginfo.getArg("rawinp","","Flag to read configuration parameters from stdin\n"
+                                      "Default: read from infile.");
+  if(rinp == "t")
+    rawinp = true;
+  
   std::string infile = arginfo.getArg("infile,input","","Option to set input "
                                       "configuration file.\nREQUIRED");
   
@@ -231,7 +237,11 @@ int main (int argc, char * const argv[]) {
   // Setup intput stream
   //#####################################// 
   std::ifstream in;
-  in.open(infile.c_str());
+  if(rawinp){
+    in.open("/dev/stdin");
+  } else {
+    in.open(infile.c_str());
+  }
   if(!in.is_open()){
     Err<<"Unable to open input file! "<< infile <<std::endl;
     Err << usagestr;
