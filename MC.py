@@ -2,19 +2,16 @@ import numpy as np
 import scipy.stats as ss
 import multiprocessing as mp
 import subprocess as sp
+import datetime as dt
 import os
 import sys
 
-rndseed = np.random.randint(0,10**7)
+n=70
 
-n=100
-
-l=306.59
-lat=-7.45
-E=50.73
-eid=152691828300
-
-FNULL = open(os.devnull,'w')
+#l=348.63
+#lat=-21.11
+#E=113.06
+#eid=152364323000
 
 a1,b1=(13.8-18.)/2.5,(20.-18.)/2.5
 a2,b2=(0.-0.2)/0.12,(np.inf-0.2)/0.12
@@ -46,7 +43,7 @@ def backtrack(counter):
     np.random.normal(4.8,0.2),
     np.random.normal(2.9,0.1)
     ])
-  line1=bytearray('C %.2f %.2f %.2f 1 -1\n' %(E,l,lat),'ascii')
+  line1=bytearray('C %.2f %.2f %.2f 1 -1\n' %(E,lon,lat),'ascii')
   line2=bytearray('F jf2012 0 0'+''.join([' %.6f']*len(params)) % tuple(params),'ascii')
   #proc=sp.Popen(['./bin/CRT','-backtrack','-rawinp'],stdin=sp.PIPE,stdout=sp.PIPE,stderr=sp.PIPE,close_fds=True)
   proc=sp.Popen(['./bin/CRT','-backtrack','-rawinp'],stdin=sp.PIPE,stdout=sp.PIPE,stderr=sp.PIPE,close_fds=True)
@@ -57,9 +54,42 @@ def backtrack(counter):
   #print(out)
   return float(out[21]),float(out[22])
 
-pool = mp.Pool(processes=4)
-srcl,srcb=zip(*pool.map(backtrack,range(n)))
-src=np.zeros((len(srcl),2))
-src[:,0]=srcl
-src[:,1]=srcb
-np.save('evt_152691828300',src)
+idarr,Earr,lonarr,latarr=np.loadtxt('data/events50_parsed.txt',
+  dtype={'names':('ID','E','lon','lat'),
+  'formats':('int','float','float','float')},skiprows=7,unpack=True)
+
+nevents=len(idarr)
+begin=dt.datetime.now()
+beginstr=dt.datetime.now().strftime("%c")
+print("Starting program: %s" %beginstr)
+for j in range(nevents):
+  #Globals rndseed, E, lon, and lat must be specified for each loop iteration
+  rndseed=np.random.randint(0,9*10**7)
+  E=Earr[j]
+  lon=lonarr[j]
+  lat=latarr[j]
+  eid=idarr[j]
+  start=dt.datetime.now()
+  startstr=dt.datetime.now().strftime("%c")
+  print("\nStart sampling for Event %i: %s" %(eid,startstr))
+  pool = mp.Pool(processes=4)
+  srcl,srcb=zip(*pool.map(backtrack,range(n)))
+  src=np.zeros((len(srcl),2))
+  src[:,0]=srcl
+  src[:,1]=srcb
+  np.save('evt_%i' %eid,src)
+  pool.close()
+  stop=dt.datetime.now()
+  stopstr=dt.datetime.now().strftime("%c")
+  deltat=stop-start
+  hours,mins=divmod(deltat.seconds,3600)
+  mins=int(mins/60)
+  print("Finished: %s  Elapsed time: %02i hours %02i minutes" %(stopstr,hours,mins))
+  
+stop=dt.datetime.now()
+stopstr=dt.datetime.now().strftime("%c")
+deltat=stop-begin
+days=deltat.days
+hours,mins=divmod(deltat.seconds,3600)
+mins=int(mins/60)
+print("\n\nEnding program: %s Elapsed time: %02i:%02i:%02i" %(stopstr,days,hours,mins))
