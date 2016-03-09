@@ -38,12 +38,17 @@ def threesig(x):
   """Numerically solve for three sigma contour"""
   return f_kde_flat[f_kde_flat>x].sum()-0.997*N_const
 
-def bbox(points):
-  a=np.zeros((2,2))
-  a[:,0]=np.min(points,axis=0)
-  a[:,1]=np.max(points,axis=0)
-  return a
-
+#Ellipse fitting functions
+#NOTE: the opencv package has a built in FitEllipse2 function
+#that would be much more elegant. *However*, since this script is run
+#using Python3, for which there is no opencv support on my version of Debian,
+#I have opted to use Gianni Spear's solution, which returns values similar
+#to opencv. The code for opencv solution is also saved in this comment
+#ocvdata=cv.CreateMat(1,len(data),cv.CV_32FC2)
+#for (i, (x,y)) in enumerate(data):
+# ocvdata[0,i]=(x,y)
+#ell=cv.FitEllipse2(ocvdata)
+#Reference:http://stackoverflow.com/questions/13635528/fit-a-ellipse-in-python-given-a-set-of-points-xi-xi-yi
 def fitEllipse(x,y):
     x = x[:,np.newaxis]
     y = y[:,np.newaxis]
@@ -99,34 +104,36 @@ paramfile=open('analysis_parameters.txt','ab')
 #Write header if opening new file only
 if pfile_exist==False:
   paramfile.write(bytes('#ID E meanl meanb ecc num_modes semimajor semiminor lmincut lmaxcut bmincut bmaxcut\n'))
-  
+
+#Main loop
 for evt in filelist:
   rawdata=np.load(evt)
-  rawdata=rawdata[:,:2]
+  rawdata=rawdata[:,:2]#cols 0 & 1 contain long,lat
   evtnum=int(''.join([k for k in evt if k.isdigit()]))
-  #pos_ang=np.load('./pos_ang/pos_ang_%i.npy' %evtnum)
   obs_ind=np.where(darray['id']==evtnum)[0][0]
   obs_E=darray['E'][obs_ind]
-  #max_pos_ang=0.5*0.06*1e4/(10.*obs_E)
-  #outlier_index=np.where(pos_ang>max_pos_ang)[0]
+  #Find inverse of covariance
   dvarinv=linalg.inv(np.cov(rawdata,rowvar=0))
   mahal=np.zeros(len(rawdata))
   sampmean=np.array([rawdata[:,0].mean(),rawdata[:,1].mean()])
+  #Setup outlier cut figure
   plt.subplot(211)
   plt.scatter(rawdata[:,0],rawdata[:,1],s=3)
   for i in range(len(rawdata)):
     mahal[i]=ssd.mahalanobis(np.array([rawdata[i,0],rawdata[i,1]]),sampmean,dvarinv)
+  #Only consider points inside 3 sigma distance
   outlier_index=np.where(mahal<mahal.mean()+3*mahal.std())[0]
   plt.subplot(212)
   plt.scatter(rawdata[outlier_index,0],rawdata[outlier_index,1],marker='.',s=3)
   plt.savefig('mahal_cut_%i.png' %evtnum)
   plt.clf()
   data=rawdata[outlier_index]
+  #Setup Gaussian kernel density estimate
   kernel=ss.gaussian_kde(data.T)
   xmin,xmax,ymin,ymax=data[:,0].min(),data[:,0].max(),data[:,1].min(),data[:,1].max()
   # Contour plotting routine from 
   # http://stackoverflow.com/questions/30145957/plotting-2d-kernel-density-estimation-with-python
-  xx,yy=np.mgrid[xmin:xmax:150j,ymin:ymax:150j]
+  xx,yy=np.mgrid[xmin:xmax:150j,ymin:ymax:150j]#Small grid for efficiency
   pos = np.vstack([xx.ravel(), yy.ravel()])
   f_kde=np.reshape(kernel(pos).T, xx.shape) # Expensive
   #Remove numerical artifacts
@@ -135,12 +142,14 @@ for evt in filelist:
   f_kde_flat=f_kde_flat[~f_kde_flat.mask].data
   N_const=f_kde_flat.sum()
   cset=plt.contourf(xx,yy,f_kde,cmap='Blues')
+  #Initial guesses for solver
   x1=cset.levels[2]
   x2=x1/10.
   x3=x1/100.
   l1=so.fsolve(onesig,x1)[0]
   l2=so.fsolve(twosig,x2)[0]
   l3=so.fsolve(threesig,x3)[0]
+  #Setup contour plot
   plt.figure(1,figsize=(8,6))
   cmap=plt.cm.OrRd
   cmap.set_under("w")
@@ -148,6 +157,7 @@ for evt in filelist:
   plt.colorbar()
   cset=plt.contour(xx,yy,f_kde,[l1,l2,l3],colors='k',fignum=1)
   ell_size=[]
+  #Get 3sigma contour points for analysis
   ps=cset.collections[2].get_paths()
   for arr in ps:
     ell_size.append(len(arr))
@@ -156,6 +166,7 @@ for evt in filelist:
   np.save('./ellipse_coords/ellipse_data_%i' %evtnum,vert)
   xsig3=vert[:,0]
   ysig3=vert[:,1]
+  #Find ellipse properties of 3sigma contour
   center,phi,axes=find_ellipse(xsig3,ysig3)
   ecc=np.sqrt(1-(np.min(axes)/np.max(axes))**2)
   ellarea=PolyArea2D(vert)
