@@ -73,7 +73,7 @@ test : $(OBJS) $(BUILDDIR)/test.$(OBJSUF)
 
 getfield : $(OBJS) $(BUILDDIR)/getfield.$(OBJSUF)
 	/bin/mkdir -p bin
-	$(LD) $(LDFLAGS) $(OBJS) $(BUILDDIR)/getfield.$(OBJSUF) $(LIBS)-o ./bin/$@
+	$(LD) $(LDFLAGS) $(OBJS) $(BUILDDIR)/getfield.$(OBJSUF) $(LIBS) -o ./bin/$@
 
 
 # build everything
