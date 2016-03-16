@@ -39,7 +39,4 @@ Some minimal setup is required by the user. In order to generate Monte Carlo sam
 
 in a columnated text file. The ```MC.py``` script is expecting 
 
-
-
-[//]:
   [GAP note]: <https://www.auger.org/index.php/document-centre/finish/139-gap-notes-2016/3994-gap2016-012>
